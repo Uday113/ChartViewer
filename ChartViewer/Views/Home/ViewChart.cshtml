@@ -1,0 +1,106 @@
+﻿@using HomeContracts;
+@*@model List<HomeContracts.StateViewModel>*@
+
+@{
+    ViewBag.Title = "ViewChart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Chart Viewer</h2>
+<script src="~/Scripts/Chart.min.js"></script>
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script> 
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/Chart.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.3/jspdf.min.js"></script>
+
+<style>
+
+    #chart_container {
+        width: 100%;
+        height:100%;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 1px;
+    }
+
+    #exportPdf{
+        padding-top:1%;
+    }
+
+</style>
+
+    <div id="chart_container">
+        <canvas id="bar_chart"></canvas>
+    </div>
+    <div id="exportPdf">
+        <input type="button" id="btnexport" name="export" class="btn btn-default" value="Export to PDF" />
+    </div>
+
+
+<script>
+    debugger;
+    var graphData = @Html.Raw(Json.Encode(ViewBag.StatesData));
+
+
+    var aLabels = graphData[1];  
+    var aDatasets1 = graphData[0];  
+  
+    //For Bar Chart  
+    var ctx = document.getElementById("bar_chart").getContext('2d');  
+    ctx.height = 900;  
+    var myChart = new Chart(ctx, {  
+        type: 'horizontalBar',   
+        //height: "230px",  
+        //width: "300px",  
+        autoSkip: false,  
+        responsive: true,  
+        animation: true,  
+        showDatapoints: true,  
+        legend: { position: 'bottom' },  
+        data: {  
+            labels: aLabels,  
+            datasets: [{  
+                label: 'Statewise Confirmed Cases',  
+                data: aDatasets1,  
+                fillColor: "rgba(0,60,100,1)",
+                strokeColor: "black",
+                backgroundColor:"rgba(0,60,100,1)",
+                borderWidth: 1
+            }]  
+        }, options: {  
+            events: ['click','hover'],  
+            scaleShowValues: true,  
+            scales: {  
+                yAxes: [{  
+                    ticks: {  
+                        beginAtZero: true  
+                    }  
+                }],  
+                xAxes: [{  
+                    ticks: {  
+                        autoSkip: false  
+                    }  
+                }]  
+            },
+            tooltips: {
+                mode: 'index',
+                intersect: false
+            },
+            hover: {
+                mode: 'index',
+                intersect: false
+            }
+        }  
+    });  
+
+
+        btnexport.addEventListener("click", function () {
+        var imgData = document.getElementById('bar_chart').toDataURL("image/jpeg", 1.0);
+        var pdf = new jsPDF();
+
+        pdf.addImage(imgData, 'JPEG', 0, 0);
+        pdf.save("download.pdf");
+    }, false);
+
+</script>
